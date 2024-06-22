@@ -86,7 +86,7 @@ public class EmployeeApp extends JFrame {
 				String password = passwordPassword.getText();
 				String username = textUsername.getText();
 				
-				if (password.contains("123") && username.contains("employee")){
+				if (password.equals("123") && username.equals("employee")){
 					passwordPassword.setText(null);
 					textUsername.setText(null);	
 					

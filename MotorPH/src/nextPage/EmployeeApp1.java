@@ -13,18 +13,40 @@ import javax.swing.JSeparator;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLayeredPane;
 import java.awt.CardLayout;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import javax.swing.JTable;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.DefaultComboBoxModel;
 import com.toedter.calendar.JCalendar;
+
+import net.proteanit.sql.DbUtils;
+
 import javax.swing.JTextPane;
 import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.TableModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.JTextField;
+import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class EmployeeApp1 extends JFrame {
+
+	
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -32,6 +54,14 @@ public class EmployeeApp1 extends JFrame {
 	private JPanel panelAttendance;
 	private JLayeredPane layeredPane;
 	private JPanel panelSchedule;
+	private JTextField txtLname;
+	private JTextField txtFname;
+	private JTextField txtBday;
+	private JTextField txtPos;
+	private JTextField txtUname;
+	private JTextField txtPword;
+	private JTextField txtEmployeeNo;
+	private JTable table;
 
 	/**
 	 * Launch the application.
@@ -39,15 +69,39 @@ public class EmployeeApp1 extends JFrame {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+				
 				try {
 					EmployeeApp1 frame = new EmployeeApp1();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
+				}							
 			}
 		});
 	}
+	
+		
+	Connection con;
+	PreparedStatement pst;
+	ResultSet rs;
+	
+	
+	
+	public void Connect() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:/motorph","root","");
+			
+		} catch (ClassNotFoundException ex) {
+			Logger.getLogger(EmployeeApp1.class.getName()).log(Level.SEVERE, null, ex);
+			ex.printStackTrace();
+		} catch (SQLException ex) {
+			Logger.getLogger(EmployeeApp1.class.getName()).log(Level.SEVERE, null, ex);
+			ex.printStackTrace();
+		}
+	 
+	
+	 }	
 	
 	public void switchPanels(JPanel panel)
 	{
@@ -55,12 +109,16 @@ public class EmployeeApp1 extends JFrame {
 		layeredPane.add(panel);
 		layeredPane.repaint();
 		layeredPane.revalidate();
-	}
+	}	
+	
 
 	/**
-	 * author @ Cyrone Alvarez
+	 * author @ Cyrone Alvarez (ALTER TABLE users_tbl AUTO_INCREMENT = 1)
 	 */
 	public EmployeeApp1() {
+		Connect();
+
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1377, 813);
 		contentPane = new JPanel();
@@ -154,15 +212,15 @@ public class EmployeeApp1 extends JFrame {
 		panelSchedule.add(lblNewLabel_5);
 		
 		JLabel lblNewLabel_5_1 = new JLabel("Tuesday");
-		lblNewLabel_5_1.setBounds(228, 75, 46, 14);
+		lblNewLabel_5_1.setBounds(228, 75, 61, 14);
 		panelSchedule.add(lblNewLabel_5_1);
 		
 		JLabel lblNewLabel_5_2 = new JLabel("Wednesday");
-		lblNewLabel_5_2.setBounds(322, 75, 66, 14);
+		lblNewLabel_5_2.setBounds(322, 75, 82, 14);
 		panelSchedule.add(lblNewLabel_5_2);
 		
 		JLabel lblNewLabel_5_3 = new JLabel("Thursday");
-		lblNewLabel_5_3.setBounds(436, 75, 46, 14);
+		lblNewLabel_5_3.setBounds(436, 75, 59, 14);
 		panelSchedule.add(lblNewLabel_5_3);
 		
 		JLabel lblNewLabel_5_4 = new JLabel("Friday");
@@ -170,7 +228,7 @@ public class EmployeeApp1 extends JFrame {
 		panelSchedule.add(lblNewLabel_5_4);
 		
 		JLabel lblNewLabel_5_5 = new JLabel("Saturday");
-		lblNewLabel_5_5.setBounds(638, 75, 46, 14);
+		lblNewLabel_5_5.setBounds(638, 75, 63, 14);
 		panelSchedule.add(lblNewLabel_5_5);
 		
 		JLabel lblNewLabel_5_6 = new JLabel("Sunday");
@@ -371,6 +429,288 @@ public class EmployeeApp1 extends JFrame {
 		btnNewButton.setBounds(562, 283, 89, 23);
 		panelDispute.add(btnNewButton);
 		
+		JPanel panelRegistration = new JPanel();
+		layeredPane.add(panelRegistration, "name_2104085139400");
+		panelRegistration.setLayout(null);
+		
+		JLabel lblNewLabel_4_1 = new JLabel("Registration");
+		lblNewLabel_4_1.setBounds(373, 11, 149, 30);
+		lblNewLabel_4_1.setFont(new Font("Tahoma", Font.BOLD, 22));
+		panelRegistration.add(lblNewLabel_4_1);
+		
+		JLabel lblEmployeeNoRgst = new JLabel("Search Employee ID:");
+		lblEmployeeNoRgst.setFont(new Font("Tahoma", Font.BOLD, 15));
+		lblEmployeeNoRgst.setBounds(57, 407, 206, 17);
+		panelRegistration.add(lblEmployeeNoRgst);
+		
+		JLabel lblLastNameRgst = new JLabel("Last Name:");
+		lblLastNameRgst.setBounds(310, 443, 72, 14);
+		panelRegistration.add(lblLastNameRgst);
+		
+		JLabel lblFirstNameRgst = new JLabel("First Name:");
+		lblFirstNameRgst.setBounds(42, 443, 72, 14);
+		panelRegistration.add(lblFirstNameRgst);
+		
+		JLabel lblPositionRgst = new JLabel("Position:");
+		lblPositionRgst.setBounds(321, 476, 62, 14);
+		panelRegistration.add(lblPositionRgst);
+		
+		JLabel lblBirthdayRgst = new JLabel("Birthday:");
+		lblBirthdayRgst.setBounds(50, 476, 66, 14);
+		panelRegistration.add(lblBirthdayRgst);
+		
+		txtLname = new JTextField();
+		txtLname.setColumns(10);
+		txtLname.setBounds(380, 440, 182, 20);
+		panelRegistration.add(txtLname);
+		
+		txtFname = new JTextField();
+		txtFname.setColumns(10);
+		txtFname.setBounds(110, 440, 182, 20);
+		panelRegistration.add(txtFname);
+		
+		txtBday = new JTextField();
+		txtBday.setColumns(10);
+		txtBday.setBounds(110, 473, 182, 20);
+		panelRegistration.add(txtBday);
+		
+		txtPos = new JTextField();
+		txtPos.setColumns(10);
+		txtPos.setBounds(380, 473, 182, 20);
+		panelRegistration.add(txtPos);
+		
+		JButton btnAddRgst = new JButton("Add");
+		btnAddRgst.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String lname,fname,bday,pos,uname,pword;
+				
+				lname = txtLname.getText();
+				fname = txtFname.getText();
+				bday = txtBday.getText();
+				pos = txtPos.getText();
+				uname = txtUname.getText();
+				pword = txtPword.getText();
+				
+				try {	
+														
+					pst = con.prepareStatement("INSERT INTO users_tbl (lname,fname,bday,pos,uname,pword)VALUES(?,?,?,?,?,?)");
+					pst.setString(1, lname);
+					pst.setString(2, fname);
+					pst.setString(3, bday);
+					pst.setString(4, pos);
+					pst.setString(5, uname);
+					pst.setString(6, pword);
+					pst.executeUpdate();
+					JOptionPane.showMessageDialog(null, "A new user has been added successfully!");
+					txtLname.setText("");
+					txtFname.setText("");
+					txtBday.setText("");
+					txtPos.setText("");
+					txtUname.setText("");
+					txtPword.setText("");
+					txtLname.requestFocus();
+								
+				}
+				catch (SQLException e1) {
+					
+					e1.printStackTrace();
+		     	}
+			}
+		});
+		btnAddRgst.setBounds(651, 420, 89, 23);
+		panelRegistration.add(btnAddRgst);
+		
+		JButton btnUpdateRgst = new JButton("Update");
+		btnUpdateRgst.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	
+				
+                String lname,fname,bday,pos,uname,pword,employeeid;
+				
+				lname = txtLname.getText();
+				fname = txtFname.getText();
+				bday = txtBday.getText();
+				pos = txtPos.getText();
+				uname = txtUname.getText();
+				pword = txtPword.getText();
+				employeeid = txtEmployeeNo.getText();
+				
+				try {	
+														
+					pst = con.prepareStatement("update users_tbl set lname=?,fname=?,bday=?,pos=?,uname=?,pword=? where employeeid=?");
+					pst.setString(1, lname);
+					pst.setString(2, fname);
+					pst.setString(3, bday);
+					pst.setString(4, pos);
+					pst.setString(5, uname);
+					pst.setString(6, pword);
+					pst.setString(7, employeeid);
+					pst.executeUpdate();
+					JOptionPane.showMessageDialog(null, "Information has been updated!");
+					txtLname.setText("");
+					txtFname.setText("");
+					txtBday.setText("");
+					txtPos.setText("");
+					txtUname.setText("");
+					txtPword.setText("");
+					txtLname.requestFocus();
+								
+				}
+				catch (SQLException e1) {
+					
+					e1.printStackTrace();
+		     	}
+				
+			}
+
+		});
+		btnUpdateRgst.setBounds(651, 453, 89, 23);
+		panelRegistration.add(btnUpdateRgst);
+		
+		JButton btnDeleteRgst = new JButton("Delete");
+		btnDeleteRgst.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+                String employeeid;
+				employeeid = txtEmployeeNo.getText();
+				
+				try {	
+														
+					pst = con.prepareStatement("delete from users_tbl where employeeid=?");
+					
+					pst.setString(1, employeeid);
+					pst.executeUpdate();
+					JOptionPane.showMessageDialog(null, "Information has been deleted!");
+					txtLname.setText("");
+					txtFname.setText("");
+					txtBday.setText("");
+					txtPos.setText("");
+					txtUname.setText("");
+					txtPword.setText("");
+					txtLname.requestFocus();
+								
+				}
+				catch (SQLException e1) {
+					
+					e1.printStackTrace();
+		     	}
+			}
+		});
+		btnDeleteRgst.setBounds(651, 486, 89, 23);
+		panelRegistration.add(btnDeleteRgst);
+		
+		JLabel lblUsernameRgst = new JLabel("Username:");
+		lblUsernameRgst.setBounds(44, 509, 79, 14);
+		panelRegistration.add(lblUsernameRgst);
+		
+		txtUname = new JTextField();
+		txtUname.setColumns(10);
+		txtUname.setBounds(110, 506, 182, 20);
+		panelRegistration.add(txtUname);
+		
+		txtPword = new JTextField();
+		txtPword.setColumns(10);
+		txtPword.setBounds(380, 506, 182, 20);
+		panelRegistration.add(txtPword);
+		
+		JLabel lblPasswordRgst = new JLabel("Password:");
+		lblPasswordRgst.setBounds(315, 509, 79, 14);
+		panelRegistration.add(lblPasswordRgst);
+		
+		JButton btnSearchRgst = new JButton("Search");
+		btnSearchRgst.addActionListener(new ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {	
+				
+				String id = txtEmployeeNo.getText();	
+							
+				try {
+					pst = con.prepareStatement("SELECT lname,fname,bday,pos,uname,pword from users_tbl where employeeid=?");
+					pst.setString(1, id);
+					
+					ResultSet rs1 = pst.executeQuery();
+					
+					if(rs1.next()==false)
+					{
+						JOptionPane.showMessageDialog(null, "User not found!");
+						txtLname.setText("");
+						txtFname.setText("");
+						txtBday.setText("");
+						txtPos.setText("");
+						txtUname.setText("");
+						txtPword.setText("");
+						txtEmployeeNo.requestFocus();
+					
+					}
+					else
+					{
+					String lname = rs1.getString(1);
+					String fname = rs1.getString(2);
+					String bday = rs1.getString(3);
+					String pos = rs1.getString(4);
+					String uname = rs1.getString(5);
+					String pword = rs1.getString(6);	
+					
+					txtLname.setText(lname);
+					txtFname.setText(fname);
+					txtBday.setText(bday);
+					txtPos.setText(pos);
+					txtUname.setText(uname);
+					txtPword.setText(pword);
+					
+				     } 
+			     	} catch (SQLException e) {
+					e.printStackTrace();
+				    }
+				
+				}
+									                   					                        					                        		                     				                        
+		});
+		btnSearchRgst.setBounds(476, 406, 89, 23);
+		panelRegistration.add(btnSearchRgst);
+		
+		txtEmployeeNo = new JTextField();
+		txtEmployeeNo.setColumns(10);
+		txtEmployeeNo.setBounds(258, 407, 182, 20);
+		panelRegistration.add(txtEmployeeNo);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 52, 845, 320);
+		panelRegistration.add(scrollPane);
+		
+		table = new JTable();
+		scrollPane.setViewportView(table);
+		
+		JButton btnRefreshRgst = new JButton("Refresh");
+		btnRefreshRgst.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+						
+				try
+				{
+					Class.forName("com.mysql.cj.jdbc.Driver");
+					
+					Connection con=DriverManager.getConnection("jdbc:mysql://localhost:/motorph","root","");
+					
+					Statement stmt=con.createStatement();
+					
+					ResultSet rs=stmt.executeQuery("select * from users_tbl");
+					
+					table.setModel(DbUtils.resultSetToTableModel(rs));
+					
+				
+				}
+				
+				    catch (Exception ex) 
+				    {
+				    	
+				    	JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+				    }
+										
+			}
+			
+		});
+		btnRefreshRgst.setBounds(766, 370, 89, 23);
+		panelRegistration.add(btnRefreshRgst);
+		
 		JButton btnSchedule = new JButton("Schedule");
 		btnSchedule.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -378,7 +718,7 @@ public class EmployeeApp1 extends JFrame {
 			}
 		});
 		btnSchedule.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btnSchedule.setBounds(475, 141, 89, 23);
+		btnSchedule.setBounds(592, 141, 89, 23);
 		contentPane.add(btnSchedule);
 		
 		JButton btnAttendance = new JButton("Attendance");
@@ -388,7 +728,7 @@ public class EmployeeApp1 extends JFrame {
 			}
 		});
 		btnAttendance.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btnAttendance.setBounds(574, 141, 107, 23);
+		btnAttendance.setBounds(690, 141, 107, 23);
 		contentPane.add(btnAttendance);
 		
 		JButton btnDispute = new JButton("Dispute");
@@ -398,8 +738,18 @@ public class EmployeeApp1 extends JFrame {
 			}
 		});
 		btnDispute.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btnDispute.setBounds(691, 141, 89, 23);
+		btnDispute.setBounds(807, 141, 89, 23);
 		contentPane.add(btnDispute);
+		
+		JButton btnRegistration = new JButton("Registration");
+		btnRegistration.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switchPanels(panelRegistration);
+			}
+		});
+		btnRegistration.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnRegistration.setBounds(475, 141, 107, 23);
+		contentPane.add(btnRegistration);
 	}
 
 	private void lblProfilePicture(ImageIcon img1) {
